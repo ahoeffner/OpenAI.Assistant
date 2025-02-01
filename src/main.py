@@ -27,12 +27,20 @@ def prompt(assistant, thread) :
 			break
 
 		client.beta.threads.messages.create(thread.id, role="user", content=text)
-		exec = client.beta.threads.runs.create(thread_id=thread.id, assistant_id=assistant.id)
+		runner = client.beta.threads.runs.create(thread_id=thread.id, assistant_id=assistant.id)
 		time.sleep(0.1)
 
+		# run MyTestCallOut with location yy
+
 		while(True) :
-			exec = client.beta.threads.runs.retrieve(run_id=exec.id, thread_id=thread.id)
-			if (exec.status == "completed") : break
+			runner = client.beta.threads.runs.retrieve(run_id=runner.id, thread_id=thread.id)
+
+			if (runner.status == "completed") :
+				break
+
+			if (runner.status == "requires_action") :
+				run_tool_calls(runner,thread)
+
 			print(".",end="",flush=True)
 			time.sleep(0.1)
 
@@ -54,6 +62,21 @@ def get_assistant() :
 	assistid = os.getenv("ASSISTANT_ID")
 	assistant = client.beta.assistants.retrieve(assistid)
 	return(assistant)
+
+
+def run_tool_calls(runner, thread) :
+	response = []
+	callsouts = runner.required_action.submit_tool_outputs.tool_calls
+
+	for call in callsouts :
+		func = call.function.name
+		args = call.function.arguments
+		print()
+		print("Invoke : ", call.id, func, args)
+		response.append({"tool_call_id": call.id, "output": "Here is the output"})
+
+
+	client.beta.threads.runs.submit_tool_outputs(thread_id=thread.id, run_id=runner.id, tool_outputs=response)
 
 
 main()
