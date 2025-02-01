@@ -1,6 +1,7 @@
 import os
 import time
 import openai
+from files import read_file
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -29,8 +30,6 @@ def prompt(assistant, thread) :
 		client.beta.threads.messages.create(thread.id, role="user", content=text)
 		runner = client.beta.threads.runs.create(thread_id=thread.id, assistant_id=assistant.id)
 		time.sleep(0.1)
-
-		# run MyTestCallOut with location yy
 
 		while(True) :
 			runner = client.beta.threads.runs.retrieve(run_id=runner.id, thread_id=thread.id)
@@ -73,9 +72,11 @@ def run_tool_calls(runner, thread) :
 		args = call.function.arguments
 		print()
 		print("Invoke : ", call.id, func, args)
-		response.append({"tool_call_id": call.id, "output": "Here is the output"})
 
+		result = read_file("src/files.py")
+		response.append({"tool_call_id": call.id, "output": "content: "+result})
 
+	# list MyTestCallOut with file yy
 	client.beta.threads.runs.submit_tool_outputs(thread_id=thread.id, run_id=runner.id, tool_outputs=response)
 
 
