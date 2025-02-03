@@ -1,7 +1,8 @@
 import os
 import time
+import json
 import openai
-from files import read_file
+from files import readFile
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -38,7 +39,7 @@ def prompt(assistant, thread) :
 				break
 
 			if (runner.status == "requires_action") :
-				run_tool_calls(runner,thread)
+				runCallOuts(runner,thread)
 
 			print(".",end="",flush=True)
 			time.sleep(0.1)
@@ -63,20 +64,21 @@ def get_assistant() :
 	return(assistant)
 
 
-def run_tool_calls(runner, thread) :
+def runCallOuts(runner, thread) :
 	response = []
 	callsouts = runner.required_action.submit_tool_outputs.tool_calls
 
 	for call in callsouts :
 		func = call.function.name
-		args = call.function.arguments
-		print()
-		print("Invoke : ", call.id, func, args)
+		args = json.loads(call.function.arguments)
 
-		result = read_file("src/files.py")
+		print()
+
+		result = readFile("src/"+args["file"])
 		response.append({"tool_call_id": call.id, "output": "content: "+result})
 
-	# list MyTestCallOut with file yy
+	# show file yy on AlexMac
+	# from AlexMac cat file files.py
 	client.beta.threads.runs.submit_tool_outputs(thread_id=thread.id, run_id=runner.id, tool_outputs=response)
 
 

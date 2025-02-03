@@ -1,4 +1,4 @@
-def read_file(filename):
+def readFile(filename):
   """Reads the contents of a file and returns its content.
 
   Args:
@@ -12,8 +12,6 @@ def read_file(filename):
       content = f.read()
       return content
   except FileNotFoundError:
-    print(f"Error: File '{filename}' not found.")
-    return None
+    return f"Error: File '{filename}' not found."
   except Exception as e:
-    print(f"An error occurred while reading the file: {e}")
-    return None
+    return f"An error occurred while reading the file: {e}"
