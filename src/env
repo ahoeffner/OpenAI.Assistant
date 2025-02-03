@@ -1,4 +1,0 @@
-To make this work, you need to create a .env file containing
-
-ASSISTANT_ID="some id"
-OPENAI_API_KEY="some key"

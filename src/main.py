@@ -12,7 +12,7 @@ client = openai.OpenAI()
 
 def main() :
 	thread = getThread()
-	assistent = get_assistant()
+	assistent = getAssistant()
 	prompt(assistent, thread)
 
 
@@ -30,7 +30,7 @@ def prompt(assistant, thread) :
 
 		client.beta.threads.messages.create(thread.id, role="user", content=text)
 		runner = client.beta.threads.runs.create(thread_id=thread.id, assistant_id=assistant.id)
-		time.sleep(0.1)
+		time.sleep(0.5)
 
 		while(True) :
 			runner = client.beta.threads.runs.retrieve(run_id=runner.id, thread_id=thread.id)
@@ -42,7 +42,7 @@ def prompt(assistant, thread) :
 				runCallOuts(runner,thread)
 
 			print(".",end="",flush=True)
-			time.sleep(0.1)
+			time.sleep(0.25)
 
 		messages = client.beta.threads.messages.list(thread.id)
 
@@ -58,7 +58,7 @@ def getThread() :
 	return(thread)
 
 
-def get_assistant() :
+def getAssistant() :
 	assistid = os.getenv("ASSISTANT_ID")
 	assistant = client.beta.assistants.retrieve(assistid)
 	return(assistant)
@@ -71,7 +71,7 @@ def runCallOuts(runner, thread) :
 	for call in callsouts :
 		func = call.function.name
 		args = json.loads(call.function.arguments)
-		
+
 		result = readFile("src/"+args["file"])
 		response.append({"tool_call_id": call.id, "output": "content: "+result})
 
