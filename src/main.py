@@ -71,9 +71,7 @@ def runCallOuts(runner, thread) :
 	for call in callsouts :
 		func = call.function.name
 		args = json.loads(call.function.arguments)
-
-		print()
-
+		
 		result = readFile("src/"+args["file"])
 		response.append({"tool_call_id": call.id, "output": "content: "+result})
 
